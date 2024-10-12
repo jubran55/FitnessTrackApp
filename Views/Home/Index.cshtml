@@ -1,8 +1,40 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
-}
+﻿
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+@model FitnessTrackApp.ViewModels.FoodViewModel
+
+<div class="container-md"></div>
+
+
+    <form dir="rtl">
+        <div class="mb-3">
+            <label for="exampleInputEmail1" class="form-label">نوع الطعام</label>
+            <select class="form-select" aria-label="أختار من القائمة">
+            <option selected>أختار من القائمة</option>
+            @foreach (var item in Model.FoodTypeList)
+            {
+                <option value="@item.FoodTypeId">@item.TypeNameArabic</option>
+            }
+            </select>
+        </div>
+        <div class="mb-3">
+            <label for="exampleInputPassword1" class="form-label">اسم الطعام</label>
+        <select class="form-select" aria-label="أختار من القائمة">
+            <option selected>أختار من القائمة</option>
+                @foreach (var item in Model.FoodNutritionsList)
+                {
+                    <option value="@item.FoodId">@item.FoodNameArabic</option>
+                }
+            </select>
+
+        </div>
+        <div class="mb-3 form-check">
+          
+        </div>
+        <button type="submit" class="btn btn-primary">Submit</button>
+    </form>
+
+
+
+   
+
 </div>
