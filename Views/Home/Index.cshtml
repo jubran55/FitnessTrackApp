@@ -1,40 +1,213 @@
-﻿
+﻿@model FitnessTrackApp.ViewModels.FoodViewModel
 
-@model FitnessTrackApp.ViewModels.FoodViewModel
+<form dir="rtl" id="foodForm" class="container">
+    <div class="row mb-3">
+        <div class="col-sm-12">
+            <label for="foodTypeSelect" class="form-label">نوع الطعام</label>
+            <select class="form-select" id="foodTypeSelect" aria-label="أختار من القائمة">
+                <option selected>أختار من القائمة</option>
+                @foreach (var item in Model.FoodTypeList)
 
-<div class="container-md"></div>
-
-
-    <form dir="rtl">
-        <div class="mb-3">
-            <label for="exampleInputEmail1" class="form-label">نوع الطعام</label>
-            <select class="form-select" aria-label="أختار من القائمة">
-            <option selected>أختار من القائمة</option>
-            @foreach (var item in Model.FoodTypeList)
-            {
-                <option value="@item.FoodTypeId">@item.TypeNameArabic</option>
-            }
-            </select>
-        </div>
-        <div class="mb-3">
-            <label for="exampleInputPassword1" class="form-label">اسم الطعام</label>
-        <select class="form-select" aria-label="أختار من القائمة">
-            <option selected>أختار من القائمة</option>
-                @foreach (var item in Model.FoodNutritionsList)
                 {
-                    <option value="@item.FoodId">@item.FoodNameArabic</option>
+                    <option value="@item.FoodTypeId">@item.TypeNameArabic</option>
                 }
             </select>
-
         </div>
-        <div class="mb-3 form-check">
-          
+    </div>
+    <div class="row mb-3">
+        <div class="col-sm-12">
+            <label for="foodItemSelect" class="form-label">اسم الطعام</label>
+            <select class="form-select" id="foodItemSelect" aria-label="أختار من القائمة">
+                <option selected>أختار من القائمة</option>
+            </select>
         </div>
-        <button type="submit" class="btn btn-primary">Submit</button>
-    </form>
+    </div>
+    <div class="row mb-3">
+        <div class="col-sm-12">
+            <label for="weightInput">الوزن (غرام):</label>
+            <input type="number" id="weightInput" class="form-control" placeholder="أدخل الوزن بالغرامات">
+        </div>
+    </div>
+    <div class="row mb-3">
+        <div class="col-sm-12">
+            <button id="calculateNutritionBtn" type="button" class="btn btn-primary w-100">حساب التغذية</button>
+        </div>
+    </div>
+</form>
 
-
-
-   
-
+<div class="container" style="overflow-x: auto;">
+    <table id="foodTable" class="table table-striped table-hover" style="margin-top: 20px;" dir="rtl">
+        <thead>
+            <tr>
+                <th>اسم الطعام</th>
+                <th>الوزن (غرام)</th>
+                <th>السعرات</th>
+            </tr>
+        </thead>
+        <tbody>
+        </tbody>
+        <tfoot>
+            <tr>
+                <td colspan="2"><strong>مجموع السعرات:</strong></td>
+                <td id="totalCalories">0</td>
+            </tr>
+            <tr>
+                <td colspan="2"><strong>مجموع البروتين:</strong></td>
+                <td id="totalProtein">0</td>
+            </tr>
+            <tr>
+                <td colspan="2"><strong>مجموع الكارب:</strong></td>
+                <td id="totalCarbs">0</td>
+            </tr>
+            <tr>
+                <td colspan="2"><strong>مجموع الدهون:</strong></td>
+                <td id="totalFats">0</td>
+            </tr>
+            <tr>
+                <td colspan="2"><strong>مجموع الألياف:</strong></td>
+                <td id="totalDietaryFiber">0</td>
+            </tr>
+        </tfoot>
+    </table>
 </div>
+
+<div class="row mb-3">
+    <div class="col-sm-12">
+        <button id="generatePdfBtn" type="button" class="btn btn-secondary w-100">تصدير إلى PDF</button>
+    </div>
+</div>
+
+<!-- Modal Structure -->
+<div class="modal fade" id="nutritionModal" tabindex="-1" aria-labelledby="nutritionModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="nutritionModalLabel">القيم الغذائية</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p><strong>السعرات:</strong> <span id="modalCalories"></span></p>
+                <p><strong>البروتين:</strong> <span id="modalProtein"></span></p>
+                <p><strong>الكاربوهيدرات:</strong> <span id="modalCarbs"></span></p>
+                <p><strong>الدهون:</strong> <span id="modalFats"></span></p>
+                <p><strong>الألياف الغذائية:</strong> <span id="modalDietaryFiber"></span></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إغلاق</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.13/jspdf.plugin.autotable.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('#foodTypeSelect').change(function () {
+                var foodTypeId = $(this).val(); // Get the selected food type ID
+
+                // Clear the food items dropdown
+                $('#foodItemSelect').empty().append('<option selected>أختار من القائمة</option>');
+
+                // Make an AJAX request if a valid type is selected
+                if (foodTypeId) {
+                    $.ajax({
+                        url: '/Home/GetFoodItemsByType', // Your controller action
+                        type: 'GET',
+                        data: { foodTypeId: foodTypeId },
+                        success: function (response) {
+                            // Populate the food items dropdown with response data
+                            $.each(response, function (index, item) {
+                                $('#foodItemSelect').append('<option value="' + item.foodId + '">' + item.foodNameArabic + '</option>');
+                            });
+                        },
+                        error: function (xhr, status, error) {
+                            console.log("An error occurred: " + error);
+                        }
+                    });
+                }
+            });
+
+            $('#calculateNutritionBtn').click(function (event) {
+                event.preventDefault(); // Prevent the default form submission
+
+                var foodId = $('#foodItemSelect').val();
+                var weight = $('#weightInput').val();
+
+                if (foodId && weight) {
+                    $.ajax({
+                        url: '/Home/CalculateNutrition',
+                        type: 'POST',
+                        data: { foodId: foodId, weight: weight },
+                        success: function (response) {
+                            // Update the table with the nutritional values
+                            var newRow = '<tr>' +
+                                '<td class="food-name" data-calories="' + response.calories + '" data-protein="' + response.protein + '" data-carbs="' + response.carbs + '" data-fats="' + response.fats + '" data-dietaryFiber="' + response.dietaryFiber + '">' + $('#foodItemSelect option:selected').text() + '</td>' +
+                                '<td>' + weight + '</td>' +
+                                '<td>' + response.calories + '</td>' +
+                                '</tr>';
+
+                            $('#foodTable tbody').append(newRow);
+
+                            // Update totals
+                            $('#totalCalories').text((parseFloat($('#totalCalories').text()) + response.calories).toFixed(2));
+                            $('#totalProtein').text((parseFloat($('#totalProtein').text()) + response.protein).toFixed(2));
+                            $('#totalCarbs').text((parseFloat($('#totalCarbs').text()) + response.carbs).toFixed(2));
+                            $('#totalFats').text((parseFloat($('#totalFats').text()) + response.fats).toFixed(2));
+                            $('#totalDietaryFiber').text((parseFloat($('#totalDietaryFiber').text()) + response.dietaryFiber).toFixed(2));
+                        },
+                        error: function (xhr, status, error) {
+                            console.log("An error occurred: " + error);
+                        }
+                    });
+                } else {
+                    alert("Please select a food item and enter the weight.");
+                }
+            });
+
+            // Show nutritional values in a modal on food name click
+            $(document).on('click', '.food-name', function () {
+                var row = $(this);
+                $('#modalCalories').text(row.data('calories'));
+                $('#modalProtein').text(row.data('protein'));
+                $('#modalCarbs').text(row.data('carbs'));
+                $('#modalFats').text(row.data('fats'));
+                $('#modalDietaryFiber').text(row.data('dietaryfiber'));
+                $('#nutritionModal').modal('show');
+            });
+
+            // Generate PDF
+            $('#generatePdfBtn').click(function () {
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
+
+                // Load the font dynamically
+                fetch('/path/to/Amiri-Regular.ttf')
+                    .then(response => response.arrayBuffer())
+                    .then(buffer => {
+                        const base64String = btoa(
+                            new Uint8Array(buffer)
+                                .reduce((data, byte) => data + String.fromCharCode(byte), '')
+                        );
+
+                        // Add custom font
+                        doc.addFileToVFS("Amiri-Regular.ttf", base64String);
+                        doc.addFont("Amiri-Regular.ttf", "Amiri", "normal");
+                        doc.setFont("Amiri");
+
+                        // Add text and table
+                        doc.text("جدول القيم الغذائية", 10, 10);
+                        doc.autoTable({ html: '#foodTable' });
+
+                        // Save the PDF
+                        doc.save('nutrition_table.pdf');
+                    })
+                    .catch(error => console.error('Error loading font:', error));
+            });
+
+        });
+    </script>
+}
+
+
