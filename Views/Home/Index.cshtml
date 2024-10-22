@@ -7,11 +7,13 @@
             <select class="form-select" id="foodTypeSelect" aria-label="أختار من القائمة">
                 <option selected>أختار من القائمة</option>
                 @foreach (var item in Model.FoodTypeList)
-
                 {
                     <option value="@item.FoodTypeId">@item.TypeNameArabic</option>
                 }
             </select>
+        </div>
+        <div class="col-sm-2 d-flex align-items-end">
+            <button id="addFoodTypeBtn" type="button" class="btn btn-secondary w-100">إضافة نوع</button>
         </div>
     </div>
     <div class="row mb-3">
@@ -20,6 +22,9 @@
             <select class="form-select" id="foodItemSelect" aria-label="أختار من القائمة">
                 <option selected>أختار من القائمة</option>
             </select>
+        </div>
+        <div class="col-sm-2 d-flex align-items-end">
+            <button id="addFoodItemBtn" type="button" class="btn btn-secondary w-100">إضافة طعام</button>
         </div>
     </div>
     <div class="row mb-3">
@@ -30,10 +35,59 @@
     </div>
     <div class="row mb-3">
         <div class="col-sm-12">
-            <button id="calculateNutritionBtn" type="button" class="btn btn-primary w-100">حساب التغذية</button>
+            <button id="calculateNutritionBtn" type="submit" class="btn btn-primary w-100">حساب التغذية</button>
         </div>
     </div>
 </form>
+
+<form dir="rtl" id="customMealForm" class="container">
+    <div class="row mb-3">
+        <div class="col-sm-12">
+            <label for="customMealName" class="form-label">اسم الوجبة المخصصة (اختياري)</label>
+            <input type="text" id="customMealName" class="form-control" placeholder="أدخل اسم الوجبة">
+        </div>
+    </div>
+    <div class="row mb-3">
+        <div class="col-sm-12">
+            <label for="customMealCalories" class="form-label">السعرات (اختياري)</label>
+            <input type="number" id="customMealCalories" class="form-control" placeholder="أدخل السعرات">
+        </div>
+    </div>
+    <div class="row mb-3">
+        <div class="col-sm-12">
+            <button id="addCustomMealBtn" type="button" class="btn btn-secondary w-100">إضافة وجبة مخصصة</button>
+        </div>
+    </div>
+</form>
+<!-- Edit Modal Structure -->
+<div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editModalLabel">تعديل القيم الغذائية</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label for="editFoodName" class="form-label">اسم الطعام</label>
+                    <input type="text" id="editFoodName" class="form-control">
+                </div>
+                <div class="mb-3">
+                    <label for="editFoodWeight" class="form-label">الوزن (غرام)</label>
+                    <input type="number" id="editFoodWeight" class="form-control">
+                </div>
+                <div class="mb-3">
+                    <label for="editFoodCalories" class="form-label">السعرات</label>
+                    <input type="number" id="editFoodCalories" class="form-control">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إغلاق</button>
+                <button type="button" id="saveEditBtn" class="btn btn-primary">حفظ التغييرات</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 <div class="container" style="overflow-x: auto;">
     <table id="foodTable" class="table table-striped table-hover" style="margin-top: 20px;" dir="rtl">
@@ -42,6 +96,7 @@
                 <th>اسم الطعام</th>
                 <th>الوزن (غرام)</th>
                 <th>السعرات</th>
+                <th>إجراءات</th>
             </tr>
         </thead>
         <tbody>
@@ -73,7 +128,7 @@
 
 <div class="row mb-3">
     <div class="col-sm-12">
-        <button id="generatePdfBtn" type="button" class="btn btn-secondary w-100">تصدير إلى PDF</button>
+        <button id="generateTxtBtn" type="button" class="btn btn-secondary w-100">تصدير إلى ملف نصي</button>
     </div>
 </div>
 
@@ -99,11 +154,77 @@
     </div>
 </div>
 
+<!-- Add Food Type Modal -->
+<div class="modal fade" id="addFoodTypeModal" tabindex="-1" aria-labelledby="addFoodTypeModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addFoodTypeModalLabel">إضافة نوع طعام جديد</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label for="newFoodTypeNameArabic" class="form-label">اسم نوع الطعام (عربي)</label>
+                    <input type="text" id="newFoodTypeNameArabic" class="form-control" placeholder="أدخل اسم نوع الطعام بالعربي">
+                </div>
+                <div class="mb-3">
+                    <label for="newFoodTypeNameEnglish" class="form-label">اسم نوع الطعام (إنجليزي)</label>
+                    <input type="text" id="newFoodTypeNameEnglish" class="form-control" placeholder="أدخل اسم نوع الطعام بالإنجليزي">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إغلاق</button>
+                <button type="button" id="saveNewFoodTypeBtn" class="btn btn-primary">حفظ</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Food Item Modal -->
+<div class="modal fade" id="addFoodItemModal" tabindex="-1" aria-labelledby="addFoodItemModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addFoodItemModalLabel">إضافة طعام جديد</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label for="newFoodItemNameArabic" class="form-label">اسم الطعام (عربي)</label>
+                    <input type="text" id="newFoodItemNameArabic" class="form-control" placeholder="أدخل اسم الطعام بالعربي">
+                </div>
+                <div class="mb-3">
+                    <label for="newFoodItemNameEnglish" class="form-label">اسم الطعام (إنجليزي)</label>
+                    <input type="text" id="newFoodItemNameEnglish" class="form-control" placeholder="أدخل اسم الطعام بالإنجليزي">
+                </div>
+                <div class="mb-3">
+                    <label for="foodTypeSelectModal" class="form-label">نوع الطعام</label>
+                    <select class="form-select" id="foodTypeSelectModal">
+                        <option selected>أختار من القائمة</option>
+                        @foreach (var item in Model.FoodTypeList)
+
+                        {
+                            <option value="@item.FoodTypeId">@item.TypeNameArabic</option>
+                        }
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إغلاق</button>
+                <button type="button" id="saveNewFoodItemBtn" class="btn btn-primary">حفظ</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 @section Scripts {
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.13/jspdf.plugin.autotable.min.js"></script>
+
     <script>
         $(document).ready(function () {
+            let currentEditRow = null;
+
             $('#foodTypeSelect').change(function () {
                 var foodTypeId = $(this).val(); // Get the selected food type ID
 
@@ -142,20 +263,20 @@
                         data: { foodId: foodId, weight: weight },
                         success: function (response) {
                             // Update the table with the nutritional values
-                            var newRow = '<tr>' +
-                                '<td class="food-name" data-calories="' + response.calories + '" data-protein="' + response.protein + '" data-carbs="' + response.carbs + '" data-fats="' + response.fats + '" data-dietaryFiber="' + response.dietaryFiber + '">' + $('#foodItemSelect option:selected').text() + '</td>' +
-                                '<td>' + weight + '</td>' +
+                            var newRow = '<tr data-source="foodForm">' +
+                                '<td class="food-name" data-foodid="' + foodId + '" data-calories="' + response.calories + '" data-protein="' + response.protein + '" data-carbs="' + response.carbs + '" data-fats="' + response.fats + '" data-dietaryFiber="' + response.dietaryFiber + '">' + $('#foodItemSelect option:selected').text() + '</td>' +
+                                '<td class="food-weight">' + weight + '</td>' +
                                 '<td>' + response.calories + '</td>' +
+                                '<td>' +
+                                '<button class="btn btn-sm btn-warning edit-btn">تعديل</button> ' +
+                                '<button class="btn btn-sm btn-danger delete-btn">حذف</button>' +
+                                '</td>' +
                                 '</tr>';
 
                             $('#foodTable tbody').append(newRow);
 
                             // Update totals
-                            $('#totalCalories').text((parseFloat($('#totalCalories').text()) + response.calories).toFixed(2));
-                            $('#totalProtein').text((parseFloat($('#totalProtein').text()) + response.protein).toFixed(2));
-                            $('#totalCarbs').text((parseFloat($('#totalCarbs').text()) + response.carbs).toFixed(2));
-                            $('#totalFats').text((parseFloat($('#totalFats').text()) + response.fats).toFixed(2));
-                            $('#totalDietaryFiber').text((parseFloat($('#totalDietaryFiber').text()) + response.dietaryFiber).toFixed(2));
+                            updateTotals();
                         },
                         error: function (xhr, status, error) {
                             console.log("An error occurred: " + error);
@@ -166,46 +287,210 @@
                 }
             });
 
-            // Show nutritional values in a modal on food name click
-            $(document).on('click', '.food-name', function () {
-                var row = $(this);
-                $('#modalCalories').text(row.data('calories'));
-                $('#modalProtein').text(row.data('protein'));
-                $('#modalCarbs').text(row.data('carbs'));
-                $('#modalFats').text(row.data('fats'));
-                $('#modalDietaryFiber').text(row.data('dietaryfiber'));
-                $('#nutritionModal').modal('show');
+            $('#addCustomMealBtn').click(function () {
+                var mealName = $('#customMealName').val();
+                var mealCalories = $('#customMealCalories').val();
+
+                if (mealName && mealCalories) {
+                    var newRow = '<tr data-source="customMealForm">' +
+                        '<td class="food-name" data-calories="' + mealCalories + '">' + mealName + '</td>' +
+                        '<td class="food-weight">-</td>' +
+                        '<td>' + mealCalories + '</td>' +
+                        '<td>' +
+                        '<button class="btn btn-sm btn-warning edit-btn">تعديل</button> ' +
+                        '<button class="btn btn-sm btn-danger delete-btn">حذف</button>' +
+                        '</td>' +
+                        '</tr>';
+
+                    $('#foodTable tbody').append(newRow);
+
+                    // Update totals
+                    updateTotals();
+                } else {
+                    alert("Please enter both the meal name and calories.");
+                }
             });
 
-            // Generate PDF
-            $('#generatePdfBtn').click(function () {
-                const { jsPDF } = window.jspdf;
-                const doc = new jsPDF();
+            $('#generateTxtBtn').click(function () {
+                var textContent = "اسم الطعام\tالوزن (غرام)\tالسعرات\n";
+                $('#foodTable tbody tr').each(function () {
+                    var foodName = $(this).find('.food-name').text();
+                    var foodWeight = $(this).find('.food-weight').text();
+                    var foodCalories = $(this).find('td').eq(2).text();
+                    textContent += foodName + "\t" + foodWeight + "\t" + foodCalories + "\n";
+                });
 
-                // Load the font dynamically
-                fetch('/path/to/Amiri-Regular.ttf')
-                    .then(response => response.arrayBuffer())
-                    .then(buffer => {
-                        const base64String = btoa(
-                            new Uint8Array(buffer)
-                                .reduce((data, byte) => data + String.fromCharCode(byte), '')
-                        );
-
-                        // Add custom font
-                        doc.addFileToVFS("Amiri-Regular.ttf", base64String);
-                        doc.addFont("Amiri-Regular.ttf", "Amiri", "normal");
-                        doc.setFont("Amiri");
-
-                        // Add text and table
-                        doc.text("جدول القيم الغذائية", 10, 10);
-                        doc.autoTable({ html: '#foodTable' });
-
-                        // Save the PDF
-                        doc.save('nutrition_table.pdf');
-                    })
-                    .catch(error => console.error('Error loading font:', error));
+                var blob = new Blob([textContent], { type: "text/plain;charset=utf-8" });
+                var link = document.createElement("a");
+                link.href = URL.createObjectURL(blob);
+                link.download = "food_data.txt";
+                link.click();
             });
 
+            // Function to update totals
+            function updateTotals() {
+                var totalCalories = 0, totalProtein = 0, totalCarbs = 0, totalFats = 0, totalDietaryFiber = 0;
+
+                $('#foodTable tbody tr').each(function () {
+                    totalCalories += parseFloat($(this).find('.food-name').data('calories')) || 0;
+                    totalProtein += parseFloat($(this).find('.food-name').data('protein')) || 0;
+                    totalCarbs += parseFloat($(this).find('.food-name').data('carbs')) || 0;
+                    totalFats += parseFloat($(this).find('.food-name').data('fats')) || 0;
+                    totalDietaryFiber += parseFloat($(this).find('.food-name').data('dietaryfiber')) || 0;
+                });
+
+                $('#totalCalories').text(totalCalories.toFixed(2));
+                $('#totalProtein').text(totalProtein.toFixed(2));
+                $('#totalCarbs').text(totalCarbs.toFixed(2));
+                $('#totalFats').text(totalFats.toFixed(2));
+                $('#totalDietaryFiber').text(totalDietaryFiber.toFixed(2));
+            }
+
+            // Event delegation for edit and delete buttons
+            $('#foodTable').on('click', '.edit-btn', function () {
+                var row = $(this).closest('tr');
+                currentEditRow = row;
+
+                var foodName = row.find('.food-name').text();
+                var foodWeight = row.find('.food-weight').text();
+                var foodCalories = row.find('td').eq(2).text();
+
+                // Populate the modal with the current values
+                $('#editFoodName').val(foodName);
+                $('#editFoodWeight').val(foodWeight);
+                $('#editFoodCalories').val(foodCalories);
+
+                // Show/hide fields based on the source
+                if (row.data('source') === 'foodForm') {
+                    $('#editFoodName').prop('disabled', true);
+                    $('#editFoodWeight').closest('.mb-3').show();
+                    $('#editFoodCalories').closest('.mb-3').hide();
+                } else if (row.data('source') === 'customMealForm') {
+                    $('#editFoodName').prop('disabled', false);
+                    $('#editFoodWeight').closest('.mb-3').hide();
+                    $('#editFoodCalories').closest('.mb-3').show();
+                }
+
+                // Show the modal
+                $('#editModal').modal('show');
+            });
+
+
+
+            $('#foodTable').on('click', '.delete-btn', function () {
+                var row = $(this).closest('tr');
+                row.remove();
+
+                // Update totals
+                updateTotals();
+            });
+
+            // Save changes from the modal
+            $('#saveEditBtn').click(function () {
+                if (currentEditRow) {
+                    var newFoodName = $('#editFoodName').val();
+                    var newFoodWeight = $('#editFoodWeight').val();
+                    var newFoodCalories = $('#editFoodCalories').val();
+
+                    if (!$('#editFoodName').prop('disabled')) {
+                        currentEditRow.find('.food-name').text(newFoodName);
+                    }
+
+                    if (currentEditRow.data('source') === 'foodForm') {
+                        currentEditRow.find('.food-weight').text(newFoodWeight);
+                    } else if (currentEditRow.data('source') === 'customMealForm') {
+                        currentEditRow.find('td').eq(2).text(newFoodCalories);
+                        currentEditRow.find('.food-name').data('calories', newFoodCalories);
+                    }
+
+                    // Hide the modal
+                    $('#editModal').modal('hide');
+
+                    // Update totals
+                    updateTotals();
+                }
+            });
+
+
+            // Show the modal when the add button is clicked
+            $('#addFoodTypeBtn').click(function () {
+                $('#addFoodTypeModal').modal('show');
+            });
+
+            // Show the modal when the add button is clicked
+            $('#addFoodTypeBtn').click(function () {
+                $('#addFoodTypeModal').modal('show');
+            });
+
+            // Handle the save action for the new food type
+            $('#saveNewFoodTypeBtn').click(function () {
+                var newFoodTypeNameArabic = $('#newFoodTypeNameArabic').val();
+                var newFoodTypeNameEnglish = $('#newFoodTypeNameEnglish').val();
+
+                if (newFoodTypeNameArabic && newFoodTypeNameEnglish) {
+                    $.ajax({
+                        url: '/Home/AddFoodType',
+                        type: 'POST',
+                        data: { typeNameArabic: newFoodTypeNameArabic, typeNameEnglish: newFoodTypeNameEnglish },
+                        success: function (response) {
+                            // Add the new food type to the dropdown
+                            $('#foodTypeSelect').append('<option value="' + response.foodTypeId + '">' + response.typeNameArabic + '</option>');
+
+                            // Close the modal
+                            $('#addFoodTypeModal').modal('hide');
+
+                            // Clear the input fields
+                            $('#newFoodTypeNameArabic').val('');
+                            $('#newFoodTypeNameEnglish').val('');
+                        },
+                        error: function (xhr, status, error) {
+                            console.log("An error occurred: " + error);
+                        }
+                    });
+                } else {
+                    alert("Please enter both Arabic and English names for the food type.");
+                }
+            });
+            // Show the modal when the add button is clicked
+            $('#addFoodItemBtn').click(function () {
+                $('#addFoodItemModal').modal('show');
+            });
+
+            // Handle the save action for the new food item
+            $('#saveNewFoodItemBtn').click(function () {
+                var newFoodItemNameArabic = $('#newFoodItemNameArabic').val();
+                var newFoodItemNameEnglish = $('#newFoodItemNameEnglish').val();
+                var foodTypeId = $('#foodTypeSelectModal').val();
+
+                if (newFoodItemNameArabic && newFoodItemNameEnglish && foodTypeId) {
+                    $.ajax({
+                        url: '/Home/AddFoodItem',
+                        type: 'POST',
+                        data: {
+                            foodNameArabic: newFoodItemNameArabic,
+                            foodNameEnglish: newFoodItemNameEnglish,
+                            foodTypeId: foodTypeId
+                        },
+                        success: function (response) {
+                            // Add the new food item to the dropdown
+                            $('#foodItemSelect').append('<option value="' + response.foodId + '">' + response.foodNameArabic + '</option>');
+
+                            // Close the modal
+                            $('#addFoodItemModal').modal('hide');
+
+                            // Clear the input fields
+                            $('#newFoodItemNameArabic').val('');
+                            $('#newFoodItemNameEnglish').val('');
+                            $('#foodTypeSelectModal').val('');
+                        },
+                        error: function (xhr, status, error) {
+                            console.log("An error occurred: " + error);
+                        }
+                    });
+                } else {
+                    alert("Please enter all required fields.");
+                }
+            });
         });
     </script>
 }

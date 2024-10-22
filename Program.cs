@@ -1,3 +1,4 @@
+using FitnessTrackApp.Data;
 using FitnessTrackApp.Models;
 
 using Microsoft.EntityFrameworkCore;

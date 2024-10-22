@@ -1,8 +1,12 @@
-﻿using FitnessTrackApp.Models;
+﻿using FitnessTrackApp.Data;
+using FitnessTrackApp.Models;
 using FitnessTrackApp.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Diagnostics;
+using static System.Runtime.InteropServices.JavaScript.JSType;
+
+//Scaffold - DbContext "Server=DESKTOP-USI4BRO;Database=FitnessTrackDB;Trusted_Connection=True;Trust Server Certificate=true" Microsoft.EntityFrameworkCore.SqlServer - OutputDir Models - Context FitnessTrackDbContext - ContextDir Data - Force
 
 namespace FitnessTrackApp.Controllers
 {
@@ -65,6 +69,24 @@ namespace FitnessTrackApp.Controllers
 
             return Json(nutrition);
         }
+
+        [HttpPost]
+        public IActionResult AddFoodType(string typeNameArabic, string typeNameEnglish)
+        {
+            // Add the new food type to the database
+            var newFoodType = new MtfoodType
+            {
+                TypeNameArabic = typeNameArabic,
+                TypeNameEnglish = typeNameEnglish
+            };
+            _dbContext.MtfoodTypes.Add(newFoodType);
+            _dbContext.SaveChanges();
+
+            // Return the new food type ID and names
+            return Json(new { foodTypeId = newFoodType.FoodTypeId, typeNameArabic = newFoodType.TypeNameArabic, typeNameEnglish = newFoodType.TypeNameEnglish });
+        }
+
+
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
