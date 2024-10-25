@@ -86,6 +86,29 @@ namespace FitnessTrackApp.Controllers
             return Json(new { foodTypeId = newFoodType.FoodTypeId, typeNameArabic = newFoodType.TypeNameArabic, typeNameEnglish = newFoodType.TypeNameEnglish });
         }
 
+        [HttpPost]
+        public IActionResult AddFoodItem(string foodNameEnglish, string foodNameArabic, int foodTypeId, double calories, double protein, double carbohydrates, double fats, double dietaryFiber)
+        {
+            // Create a new food item
+            var newFoodItem = new MtfoodNutrition
+            {
+                FoodNameEnglish = foodNameEnglish,
+                FoodNameArabic = foodNameArabic,
+                FoodTypeId = foodTypeId,
+                Calories = calories,
+                Protein = protein,
+                Carbohydrates = carbohydrates,
+                Fats = fats,
+                DietaryFiber = dietaryFiber
+            };
+
+            // Add the new food item to the database
+            _dbContext.MtfoodNutritions.Add(newFoodItem);
+            _dbContext.SaveChanges();
+
+            // Return the new food item ID and names
+            return Json(new { foodId = newFoodItem.FoodId, foodNameEnglish = newFoodItem.FoodNameEnglish, foodNameArabic = newFoodItem.FoodNameArabic });
+        }
 
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

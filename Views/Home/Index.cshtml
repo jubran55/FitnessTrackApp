@@ -185,22 +185,21 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="addFoodItemModalLabel">إضافة طعام جديد</h5>
+                <h5 class="modal-title" id="addFoodItemModalLabel">Add New Food Item</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <div class="mb-3">
-                    <label for="newFoodItemNameArabic" class="form-label">اسم الطعام (عربي)</label>
-                    <input type="text" id="newFoodItemNameArabic" class="form-control" placeholder="أدخل اسم الطعام بالعربي">
+                    <label for="newFoodItemNameArabic" class="form-label">Food Name (Arabic)</label>
+                    <input type="text" class="form-control" id="newFoodItemNameArabic">
                 </div>
                 <div class="mb-3">
-                    <label for="newFoodItemNameEnglish" class="form-label">اسم الطعام (إنجليزي)</label>
-                    <input type="text" id="newFoodItemNameEnglish" class="form-control" placeholder="أدخل اسم الطعام بالإنجليزي">
+                    <label for="newFoodItemNameEnglish" class="form-label">Food Name (English)</label>
+                    <input type="text" class="form-control" id="newFoodItemNameEnglish">
                 </div>
                 <div class="mb-3">
-                    <label for="foodTypeSelectModal" class="form-label">نوع الطعام</label>
+                    <label for="foodTypeSelectModal" class="form-label">Food Type</label>
                     <select class="form-select" id="foodTypeSelectModal">
-                        <option selected>أختار من القائمة</option>
                         @foreach (var item in Model.FoodTypeList)
 
                         {
@@ -208,10 +207,30 @@
                         }
                     </select>
                 </div>
+                <div class="mb-3">
+                    <label for="newCalories" class="form-label">Calories</label>
+                    <input type="number" class="form-control" id="newCalories">
+                </div>
+                <div class="mb-3">
+                    <label for="newProtein" class="form-label">Protein</label>
+                    <input type="number" class="form-control" id="newProtein">
+                </div>
+                <div class="mb-3">
+                    <label for="newCarbohydrates" class="form-label">Carbohydrates</label>
+                    <input type="number" class="form-control" id="newCarbohydrates">
+                </div>
+                <div class="mb-3">
+                    <label for="newFats" class="form-label">Fats</label>
+                    <input type="number" class="form-control" id="newFats">
+                </div>
+                <div class="mb-3">
+                    <label for="newDietaryFiber" class="form-label">Dietary Fiber</label>
+                    <input type="number" class="form-control" id="newDietaryFiber">
+                </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إغلاق</button>
-                <button type="button" id="saveNewFoodItemBtn" class="btn btn-primary">حفظ</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="saveNewFoodItemBtn">Save</button>
             </div>
         </div>
     </div>
@@ -461,15 +480,25 @@
                 var newFoodItemNameArabic = $('#newFoodItemNameArabic').val();
                 var newFoodItemNameEnglish = $('#newFoodItemNameEnglish').val();
                 var foodTypeId = $('#foodTypeSelectModal').val();
+                var calories = $('#newCalories').val();
+                var protein = $('#newProtein').val();
+                var carbohydrates = $('#newCarbohydrates').val();
+                var fats = $('#newFats').val();
+                var dietaryFiber = $('#newDietaryFiber').val();
 
-                if (newFoodItemNameArabic && newFoodItemNameEnglish && foodTypeId) {
+                if (newFoodItemNameArabic && newFoodItemNameEnglish && foodTypeId && calories && protein && carbohydrates && fats && dietaryFiber) {
                     $.ajax({
                         url: '/Home/AddFoodItem',
                         type: 'POST',
                         data: {
                             foodNameArabic: newFoodItemNameArabic,
                             foodNameEnglish: newFoodItemNameEnglish,
-                            foodTypeId: foodTypeId
+                            foodTypeId: foodTypeId,
+                            calories: calories,
+                            protein: protein,
+                            carbohydrates: carbohydrates,
+                            fats: fats,
+                            dietaryFiber: dietaryFiber
                         },
                         success: function (response) {
                             // Add the new food item to the dropdown
@@ -482,6 +511,11 @@
                             $('#newFoodItemNameArabic').val('');
                             $('#newFoodItemNameEnglish').val('');
                             $('#foodTypeSelectModal').val('');
+                            $('#newCalories').val('');
+                            $('#newProtein').val('');
+                            $('#newCarbohydrates').val('');
+                            $('#newFats').val('');
+                            $('#newDietaryFiber').val('');
                         },
                         error: function (xhr, status, error) {
                             console.log("An error occurred: " + error);
@@ -491,6 +525,7 @@
                     alert("Please enter all required fields.");
                 }
             });
+
         });
     </script>
 }
