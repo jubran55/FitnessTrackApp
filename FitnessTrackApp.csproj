@@ -16,7 +16,6 @@
 
   <ItemGroup>
     <Folder Include="Data\" />
-    <Folder Include="NewFolder\" />
     <Folder Include="wwwroot\font\" />
   </ItemGroup>
 
