@@ -13,7 +13,7 @@ public partial class MtfoodNutrition
 
     public int? FoodTypeId { get; set; }
 
-    public int? Weight100 { get; set; }
+    public double? Weight100 { get; set; }
 
     public double? Calories { get; set; }
 

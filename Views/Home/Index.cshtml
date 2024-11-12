@@ -1,6 +1,5 @@
 ﻿@model FitnessTrackApp.ViewModels.FoodViewModel
-<asp:Label ID="lblUsername" runat="server" Text="Welcome!"></asp:Label>
-<p>Welcome, @ViewBag.Username!</p>
+
 
 <form dir="rtl" id="foodForm" class="container">
     <div class="row mb-3">
@@ -14,7 +13,7 @@
                 }
             </select>
         </div>
-        <div class="col-sm-2 d-flex align-items-end">
+        <div class="col-sm-12">
             <button id="addFoodTypeBtn" type="button" class="btn btn-secondary w-100">إضافة نوع</button>
         </div>
     </div>
@@ -25,7 +24,7 @@
                 <option selected>أختار من القائمة</option>
             </select>
         </div>
-        <div class="col-sm-2 d-flex align-items-end">
+        <div class="col-sm-12">
             <button id="addFoodItemBtn" type="button" class="btn btn-secondary w-100">إضافة طعام</button>
         </div>
     </div>
