@@ -7,6 +7,7 @@ using System.Diagnostics;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
 //Scaffold - DbContext "Server=DESKTOP-USI4BRO;Database=FitnessTrackDB;Trusted_Connection=True;Trust Server Certificate=true" Microsoft.EntityFrameworkCore.SqlServer - OutputDir Models - Context FitnessTrackDbContext - ContextDir Data - Force
+//Scaffold - DbContext "Server=db9783.databaseasp.net; Database=db9783; User Id=db9783; Password=8Mi=c#C7-E6g; Encrypt=False; MultipleActiveResultSets=True;" Microsoft.EntityFrameworkCore.SqlServer - OutputDir Models - Context FitnessTrackDbContext - ContextDir Data - Force
 
 namespace FitnessTrackApp.Controllers
 {
@@ -23,6 +24,9 @@ namespace FitnessTrackApp.Controllers
 
         public IActionResult Index()
         {
+            string username = HttpContext.User.Identity.Name;
+            ViewBag.Username = username;
+
             var FoodTypeList = _dbContext.MtfoodTypes.ToList();
             var FoodNutritionsList = _dbContext.MtfoodNutritions.ToList();
 
@@ -116,5 +120,8 @@ namespace FitnessTrackApp.Controllers
         {
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
+
+      
+
     }
 }
