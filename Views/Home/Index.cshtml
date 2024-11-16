@@ -7,9 +7,16 @@
             <label for="foodTypeSelect" class="form-label">نوع الطعام</label>
             <select class="form-select" id="foodTypeSelect" aria-label="أختار من القائمة">
                 <option selected>أختار من القائمة</option>
-                @foreach (var item in Model.FoodTypeList)
+                @if (Model.FoodTypeList != null)
                 {
-                    <option value="@item.FoodTypeId">@item.TypeNameArabic</option>
+                    @foreach (var item in Model.FoodTypeList)
+                    {
+                        <option value="@item.FoodTypeId">@item.TypeNameArabic</option>
+                    }
+                }
+                else
+                {
+                    <option>No food types available</option>
                 }
             </select>
         </div>
@@ -237,6 +244,12 @@
     </div>
 </div>
 
+<div class="row mb-3">
+    <div class="col-sm-12">
+        <button id="generatePdfBtn" type="button" class="btn btn-secondary w-100">تصدير الجدول إلى PDF</button>
+    </div>
+</div>
+
 @section Scripts {
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.13/jspdf.plugin.autotable.min.js"></script>
@@ -331,21 +344,6 @@
                 }
             });
 
-            $('#generateTxtBtn').click(function () {
-                var textContent = "اسم الطعام\tالوزن (غرام)\tالسعرات\n";
-                $('#foodTable tbody tr').each(function () {
-                    var foodName = $(this).find('.food-name').text();
-                    var foodWeight = $(this).find('.food-weight').text();
-                    var foodCalories = $(this).find('td').eq(2).text();
-                    textContent += foodName + "\t" + foodWeight + "\t" + foodCalories + "\n";
-                });
-
-                var blob = new Blob([textContent], { type: "text/plain;charset=utf-8" });
-                var link = document.createElement("a");
-                link.href = URL.createObjectURL(blob);
-                link.download = "food_data.txt";
-                link.click();
-            });
 
             // Function to update totals
             function updateTotals() {
@@ -528,6 +526,131 @@
             });
 
         });
+
+      
+
+        // document.getElementById('generatePdfBtn').addEventListener('click', function () {
+        //     // Clone the table to preserve the original for display
+        //     const foodTableClone = document.getElementById('foodTable').cloneNode(true);
+
+        //     // Remove buttons from the cloned table
+        //     const buttons = foodTableClone.querySelectorAll('.btn');
+        //     buttons.forEach(button => button.remove());
+
+        //     // Send the modified table HTML to the server
+        //     fetch('/Home/GeneratePdf', {
+        //         method: 'POST',
+        //         headers: {  
+        //             'Content-Type': 'application/json'
+        //         },
+        //         body: JSON.stringify({ html: foodTableClone.outerHTML })
+        //     })
+        //         .then(response => {
+        //             if (!response.ok) {
+        //                 throw new Error(`HTTP error! Status: ${response.status}`);
+        //             }
+        //             return response.blob();
+        //         })
+        //         .then(blob => {
+        //             const url = window.URL.createObjectURL(blob);
+        //             const a = document.createElement('a');
+        //             a.style.display = 'none';
+        //             a.href = url;
+        //             a.download = 'foodTable.pdf';
+        //             document.body.appendChild(a);
+        //             a.click();
+        //             window.URL.revokeObjectURL(url);
+        //         })
+        //         .catch(error => console.error('Error generating PDF:', error));
+        // });
+
+        document.getElementById('generatePdfBtn').addEventListener('click', function () {
+            // Clone the table to preserve the original
+            const foodTableClone = document.getElementById('foodTable').cloneNode(true);
+
+            // Remove the row containing the totals (by checking for specific IDs)
+            const rows = foodTableClone.querySelectorAll('tr');
+            rows.forEach(row => {
+                const hasTotals = row.querySelector('#totalCalories') ||
+                    row.querySelector('#totalProtein') ||
+                    row.querySelector('#totalCarbs') ||
+                    row.querySelector('#totalFats') ||
+                    row.querySelector('#totalDietaryFiber');
+                if (hasTotals) {
+                    row.remove(); // Remove the entire row containing totals
+                } else {
+                    // Remove all columns except the name and weight
+                    const cells = row.querySelectorAll('td, th');
+                    cells.forEach((cell, index) => {
+                        // Keep only the first two columns (Name and Weight)
+                        if (index > 1) {
+                            cell.remove();
+                        }
+                    });
+                }
+            });
+
+            // Add custom CSS styles for the table
+            const style = `
+                <style>
+                    body {
+                        font-family: Arial, sans-serif;
+                        margin: 0;
+                        padding: 0;
+                    }
+                    table {
+                        width: 100%;
+                        border-collapse: collapse;
+                        margin: 20px 0;
+                        font-size: 14px;
+                    }
+                    th, td {
+                        border: 1px solid #ddd;
+                        padding: 8px;
+                        text-align: left;
+                    }
+                    th {
+                        background-color: #f4f4f4;
+                        font-weight: bold;
+                    }
+                    tr:nth-child(even) {
+                        background-color: #f9f9f9;
+                    }
+                </style>
+            `;
+
+            // Combine the cleaned-up table with styles
+            const htmlContent = style + foodTableClone.outerHTML;
+
+            // Send the cleaned-up table to the server
+            fetch('/Home/GeneratePdf', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ html: htmlContent })
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! Status: ${response.status}`);
+                    }
+                    return response.blob();
+                })
+                .then(blob => {
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.style.display = 'none';
+                    a.href = url;
+                    a.download = 'foodTable.pdf';
+                    document.body.appendChild(a);
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                })
+                .catch(error => console.error('Error generating PDF:', error));
+        });
+
+
+
     </script>
 }
 

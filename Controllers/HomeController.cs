@@ -2,10 +2,13 @@
 using FitnessTrackApp.Models;
 using FitnessTrackApp.ViewModels;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.EntityFrameworkCore;
+using SelectPdf;
 using System.Diagnostics;
 using static System.Runtime.InteropServices.JavaScript.JSType;
-
+using Microsoft.AspNetCore.Mvc.ViewEngines;
 //Scaffold-DbContext "Server=DESKTOP-USI4BRO;Database=FitnessTrackDB;Trusted_Connection=True;Trust Server Certificate=true" Microsoft.EntityFrameworkCore.SqlServer -OutputDir Models -Context FitnessTrackDbContext -ContextDir Data -Force
 //Scaffold-DbContext "Server=db9783.databaseasp.net; Database=db9783; User Id=db9783; Password=8Mi=c#C7-E6g; Encrypt=False; MultipleActiveResultSets=True;" Microsoft.EntityFrameworkCore.SqlServer -OutputDir Models -Context FitnessTrackDbContext -ContextDir Data -Force
 
@@ -15,27 +18,28 @@ namespace FitnessTrackApp.Controllers
     {
         private readonly ILogger<HomeController> _logger;
         private readonly FitnessTrackDbContext _dbContext;
+        private readonly ICompositeViewEngine _viewEngine;
 
-        public HomeController(ILogger<HomeController> logger, FitnessTrackDbContext dbContext)
+        public HomeController(ILogger<HomeController> logger, FitnessTrackDbContext dbContext , ICompositeViewEngine viewEngine)
         {
             _logger = logger;
             _dbContext = dbContext;
+            _viewEngine = viewEngine;
         }
 
         public IActionResult Index()
         {
-            string username = HttpContext.User.Identity.Name;
-            ViewBag.Username = username;
 
-            var FoodTypeList = _dbContext.MtfoodTypes.ToList();
-            var FoodNutritionsList = _dbContext.MtfoodNutritions.ToList();
+
+            var FoodTypeList = _dbContext.MtfoodTypes.ToList() ?? new List<MtfoodType>();
+            var FoodNutritionsList = _dbContext.MtfoodNutritions.ToList() ?? new List<MtfoodNutrition>();
 
             var model = new FoodViewModel
             {
                 FoodTypeList = FoodTypeList,
                 FoodNutritionsList = FoodNutritionsList
             };
-
+           
             return View(model);
         }
 
@@ -121,7 +125,24 @@ namespace FitnessTrackApp.Controllers
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
 
-      
+        [HttpPost]
+        public IActionResult GeneratePdf([FromBody] HtmlContentModel model)
+        {
+            HtmlToPdf converter = new HtmlToPdf();
+            PdfDocument doc = converter.ConvertHtmlString(model.Html);
+            byte[] pdf = doc.Save();
+            doc.Close();
 
+            return File(pdf, "application/pdf11", "foodTable.pdf");
+        }
+    
+
+  
+
+
+}
+    public class HtmlContentModel
+    {
+        public string Html { get; set; }
     }
 }
